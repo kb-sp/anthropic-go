@@ -7,11 +7,6 @@ import (
 	"github.com/madebywelch/anthropic-go/v3/pkg/anthropic/client/native"
 )
 
-type WeatherRequest struct {
-	City string `json:"city" jsonschema:"required,description=city to get the weather for"`
-	Unit string `json:"unit" jsonschema:"enum=celsius,enum=fahrenheit,description=temperature unit to return"`
-}
-
 func main() {
 	ctx := context.Background()
 	client, err := native.MakeClient(native.Config{
@@ -29,7 +24,13 @@ func main() {
 			{
 				Name:        "get_weather",
 				Description: "Get the weather",
-				InputSchema: anthropic.GenerateInputSchema(&WeatherRequest{}),
+				InputSchema: anthropic.InputSchema{
+					Type: "object",
+					Properties: map[string]anthropic.Property{
+						"city": {Type: "string", Description: "city to get the weather for"},
+						"unit": {Type: "string", Enum: []string{"celsius", "fahrenheit"}, Description: "temperature unit to return"}},
+					Required: []string{"city"},
+				},
 			},
 		},
 		Messages: []anthropic.MessagePartRequest{
